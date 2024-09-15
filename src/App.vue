@@ -1,27 +1,57 @@
 <template>
   <div class="app-container">
-    <InputSection ref="inputSection" :circles="circles" @add-circle="addCircle" @update-circle="updateCircle" />
-    <ImageSection ref="imageSection" :circles="circles" @start-drag="startDrag" />
-    <MaterialSelection :selectedMaterial="selectedMaterial" @select-material="selectMaterial" />
-    <button class="submit-button" @click="submitData">Senden</button>
+    <div class="content-wrapper">
+      <div class="main-content">
+        <!-- Seção da Imagem -->
+        <div class="image-section">
+          <ImageSection
+            ref="imageSection"
+            :circles="circles"
+            @start-drag="startDrag"
+          />
+        </div>
 
-    <div v-if="submittedData.length > 0" class="submitted-data">
-      <h2>Gesendete Daten</h2>
-      <ul>
-        <li v-for="(data, index) in submittedData" :key="index">
-          <strong>Einsendung {{ index + 1 }}:</strong>
-          <ul>
-            <li>Material: {{ data.selectedMaterial }}</li>
-            <li>Kreise:</li>
+        <!-- Seção de Customizações -->
+        <div class="customization-section">
+          <!-- Título Rotacionado -->
+          <div class="rotated-title">
+            <span>Anpassungen</span>
+          </div>
+          <!-- Bloco de Inputs e Seleção de Material -->
+          <div class="customization-content">
+            <InputSection
+              :circles="circles"
+              @add-circle="addCircle"
+              @update-circle="updateCircle"
+            />
+            <MaterialSelection
+              :selectedMaterial="selectedMaterial"
+              @select-material="selectMaterial"
+            />
+            <button class="submit-button" @click="submitData">Senden</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seção de Dados Submetidos -->
+      <div v-if="submittedData.length > 0" class="submitted-data">
+        <h2>Gesendete Daten</h2>
+        <ul>
+          <li v-for="(data, index) in submittedData" :key="index">
+            <strong>Einsendung {{ index + 1 }}:</strong>
             <ul>
-              <li v-for="(circle, cIndex) in data.circles" :key="cIndex">
-                Kreis {{ cIndex + 1 }} - xPixels: {{ circle.xPixels }}, yPixels: {{ circle.yPixels }}, xPercent: {{
-                  circle.xPercent }}, yPercent: {{ circle.yPercent }}
-              </li>
+              <li>Material: {{ data.selectedMaterial }}</li>
+              <li>Kreise:</li>
+              <ul>
+                <li v-for="(circle, cIndex) in data.circles" :key="cIndex">
+                  Kreis {{ cIndex + 1 }} - xPixels: {{ circle.xPixels }}, yPixels: {{ circle.yPixels }}, xPercent: {{
+                    circle.xPercent }}, yPercent: {{ circle.yPercent }}
+                </li>
+              </ul>
             </ul>
-          </ul>
-        </li>
-      </ul>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 </template>
@@ -79,9 +109,13 @@ export default {
 
         if (!this.isColliding(x, y, this.dragIndex)) {
           this.circles[this.dragIndex] = { x, y };
-          // Não precisamos mais chamar updateCircle no componente filho
         }
       }
+    },
+    stopDrag() {
+      this.isDragging = false;
+      document.removeEventListener('mousemove', this.onDrag);
+      document.removeEventListener('mouseup', this.stopDrag);
     },
     updateCircle(index, x, y) {
       const rect = this.$refs.imageSection.$refs.imageContainer.getBoundingClientRect();
@@ -91,11 +125,6 @@ export default {
       if (!this.isColliding(x, y, index)) {
         this.circles[index] = { x, y };
       }
-    },
-    stopDrag() {
-      this.isDragging = false;
-      document.removeEventListener('mousemove', this.onDrag);
-      document.removeEventListener('mouseup', this.stopDrag);
     },
     isColliding(x, y, excludeIndex = null) {
       const radius = 20;
@@ -120,8 +149,8 @@ export default {
       const imageHeight = rect.height;
       const outputData = {
         circles: this.circles.map((circle) => ({
-          xPixels: circle.x,
-          yPixels: circle.y,
+          xPixels: circle.x.toFixed(2),
+          yPixels: circle.y.toFixed(2),
           xPercent: ((circle.x / imageWidth) * 100).toFixed(2) + '%',
           yPercent: ((circle.y / imageHeight) * 100).toFixed(2) + '%',
         })),
@@ -138,20 +167,96 @@ export default {
 </script>
 
 <style>
-.app-container {
+body {
+  margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
     'Open Sans', 'Helvetica Neue', sans-serif;
-  padding: 20px;
+  background-color: #ffffff;
+  color: #1c1c1e;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: normal;
+}
+
+a {
+  color: #007aff;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.content-wrapper {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 10px; /* Garante uma distância mínima de 10px nas laterais */
+  flex: 1;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.main-content {
+  display: flex;
+  flex: 1;
+}
+
+.image-section {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.customization-section {
+  flex: 1;
+  position: relative;
+  background-color: #f9f9f9;
+  display: flex;
+}
+
+.rotated-title {
+  position: absolute;
+  top: 20px;
+  left: -50px;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  font-size: 24px;
+  color: #7f7f7f;
+}
+
+.customization-content {
+  margin: auto;
+  width: 80%;
+  max-width: 400px;
 }
 
 .submit-button {
   padding: 15px 30px;
-  background-color: #34c759;
+  background-color: #007aff;
   color: #fff;
   border: none;
-  border-radius: 15px;
+  border-radius: 12px;
   cursor: pointer;
   font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.submit-button:hover {
+  background-color: #005fcb;
 }
 
 .submitted-data {
@@ -170,4 +275,44 @@ export default {
 .submitted-data li {
   margin-bottom: 10px;
 }
+
+@media (max-width: 768px) {
+  .main-content {
+    flex-direction: column;
+  }
+
+  .customization-section {
+    position: static;
+    width: 100%;
+  }
+
+  .rotated-title {
+    position: static;
+    transform: none;
+    writing-mode: horizontal-tb;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .customization-content {
+    width: 100%;
+    max-width: none;
+  }
+
+  .image-section,
+  .customization-section {
+    flex: none;
+  }
+
+  /* Adicionar ajuste para a imagem */
+  .image-section {
+    padding: 20px 0;
+    max-width: 100%;
+  }
+
+  .image-section img {
+    max-width: 100%;
+    height: auto;
+  }
+ }
 </style>

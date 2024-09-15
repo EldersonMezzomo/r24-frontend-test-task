@@ -38,22 +38,37 @@ export default {
   margin-bottom: 30px;
 }
 
+.material-selection h2 {
+  font-size: 28px;
+  margin-bottom: 20px;
+}
+
 .materials {
   display: flex;
   flex-wrap: wrap;
+  gap: 10px;
 }
 
 .material-item {
-  padding: 10px 20px;
-  margin: 5px;
-  background-color: #f2f2f2;
-  border-radius: 15px;
+  padding: 12px 20px;
+  background-color: #f2f2f7;
+  border-radius: 12px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  font-size: 16px;
+  color: #1c1c1e;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.material-item:hover {
+  background-color: #e5e5ea;
 }
 
 .material-item.selected {
   background-color: #007aff;
   color: #fff;
+}
+
+.material-item:active {
+  transform: scale(0.98);
 }
 </style>

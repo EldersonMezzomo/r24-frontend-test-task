@@ -32,17 +32,25 @@ export default {
 
 <style scoped>
 .image-section {
-  margin-bottom: 30px;
+  background-color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .image-container {
   position: relative;
-  display: inline-block;
-  cursor: pointer;
+  max-width: 100%;
+  width: 100%;
+  height: auto;
 }
 
 .image-container img {
-  max-width: 100%;
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 600px; /* Limita a largura máxima da imagem */
   border-radius: 20px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 </style>
